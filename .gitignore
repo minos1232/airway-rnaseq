@@ -1,0 +1,27 @@
+# Raw data - regeneratable from SRA accessions in README
+raw_data/
+
+# Reference files - regeneratable from GENCODE URLs in README
+reference/*.fa.gz
+reference/*.gtf.gz
+
+# Salmon index - rebuildable from reference files
+salmon_index/
+
+# QC trimmed reads - keep reports, drop the actual sequence data
+qc/*.fastq.gz
+
+# Quant output - ignore everything except logs and meta_info.json per sample
+quant/**
+!quant/*/
+!quant/*/logs/
+!quant/*/logs/salmon_quant.log
+!quant/*/aux_info/
+!quant/*/aux_info/meta_info.json
+
+# Misc
+*.fastq
+*.sra
+fasterq.tmp.*
+__pycache__/
+.ipynb_checkpoints/
