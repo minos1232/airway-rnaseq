@@ -26,3 +26,6 @@ fasterq.tmp.*
 __pycache__/
 .ipynb_checkpoints/
 .vscode/
+.RData
+.RHistoey
+.RHistory
