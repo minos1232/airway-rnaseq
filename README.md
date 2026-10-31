@@ -78,15 +78,43 @@ Dexamethasone produces a broad, statistically robust, and biologically coherent 
 - The broad (padj < 0.05 only) enrichment result reflects the size of the input gene list as much as biology — the stricter threshold result is likely the more specific and reliable signal.
 - This analysis reflects one cell type (airway smooth muscle) and one glucocorticoid; findings should not be generalized to other tissues or corticosteroids without further validation.
 
+## Cross-Language Statistical Analysis & QC (R & Python)
+
+In addition to the main PyDESeq2 differential expression pipeline, the `scripts/` directory provides modular R and Python implementations of core statistical normalization and quality control workflows:
+
+* **Principal Component Analysis (`scripts/R/pca_analysis.R`):** Filters zero-variance genes, applies $\log_2(\text{count} + 1)$ transformation, and performs scaled PCA (`ggplot2`) to evaluate sample clustering across dexamethasone treatment and donor identity.
+* **Row-Wise Z-Score Normalization (`scripts/R/zscore_normalization.R`, `scripts/python/zscore_normalization.py`):** Filters strictly significant DEGs (`padj < 0.01`, $|\log_2\text{FC}| > 2$) and standardizes gene expression across samples ($Z = \frac{x - \mu}{\sigma}$) for downstream heatmap visualization.
+* **Biological Replicate Reproducibility (`scripts/R/replicate_regression.R`, `scripts/python/replicate_regression.py`):** Evaluates expression concordance across ~60,000 genes between untreated biological replicates (`SRR1039508` vs. `SRR1039512`) using Pearson correlation ($r = 0.977$), coefficient of determination ($R^2 = 0.954$), and ordinary least-squares linear regression.
+
 ## Reproducing this analysis
 
-```
+```text
 raw_data/       # downloaded FASTQ files (not included, see SRA accessions above)
 qc/             # fastp-trimmed FASTQ + QC reports
 reference/      # GENCODE v50 transcriptome, genome, and derived mapping files
 salmon_index/   # decoy-aware Salmon index
 quant/          # per-sample Salmon quantification output
 results/        # count matrix, metadata, DE results, plots, enrichment output
+scripts/        # modular R (scripts/R/) and Python (scripts/python/) QC & stats scripts
 ```
 
-Environment: Python 3.10, conda environment with `sra-tools`, `fastp`, `salmon`, `pydeseq2`, `gseapy`. See `build_count_matrix.py` and `analysis.ipynb` for the full pipeline code.
+Environment: Python 3.10, conda environment with `sra-tools`, `fastp`, `salmon`, `pydeseq2`, `gseapy`, `pandas`, `scipy`, plus R (`tidyverse`, `ggplot2`). See `build_count_matrix.py` and `analysis.ipynb` for the main pipeline code, and `scripts/` for standalone R and Python statistical scripts.
+
+### Quick Start
+
+```bash
+# 1. Clone the repository
+git clone [https://github.com/minos1232/airway-rnaseq.git](https://github.com/minos1232/airway-rnaseq.git)
+cd airway-rnaseq
+
+# 2. Rebuild count matrix and launch main notebook
+python build_count_matrix.py
+jupyter notebook analysis.ipynb
+
+# 3. Run standalone R and Python statistical QC scripts
+python scripts/python/zscore_normalization.py
+python scripts/python/replicate_regression.py
+Rscript scripts/R/pca_analysis.R
+Rscript scripts/R/zscore_normalization.R
+Rscript scripts/R/replicate_regression.R
+```
